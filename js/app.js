@@ -1,60 +1,81 @@
 (function() {
-  'use strict';
+ 'use strict';
 
-  const movies = [];
+ const movies = [];
 
-  const renderMovies = function() {
-    $('#listings').empty();
+ const renderMovies = function(arr) {
+   $('#listings').empty();
 
-    for (const movie of movies) {
-      const $col = $('<div>').addClass('col s6');
-      const $card = $('<div>').addClass('card hoverable');
-      const $content = $('<div>').addClass('card-content center');
-      const $title = $('<h6>').addClass('card-title truncate');
+   for (const movie of arr) {
+     axios.get(`http://www.omdbapi.com/?i=${movie.imdbID}&plot=full&apikey=1332854d`)
+       .then(function(id){
 
-      $title.attr({
-        'data-position': 'top',
-        'data-tooltip': movie.title
-      });
+     const $col = $('<div>').addClass('col s6');
+     const $card = $('<div>').addClass('card hoverable');
+     const $content = $('<div>').addClass('card-content center');
+     const $title = $('<h6>').addClass('card-title truncate');
 
-      $title.tooltip({ delay: 50 }).text(movie.title);
+     $title.attr({
+       'data-position': 'top',
+       'data-tooltip': movie.Title
+     });
 
-      const $poster = $('<img>').addClass('poster');
+     $title.tooltip({ delay: 50 }).text(movie.Title);
 
-      $poster.attr({
-        src: movie.poster,
-        alt: `${movie.poster} Poster`
-      });
+     const $poster = $('<img>').addClass('poster');
 
-      $content.append($title, $poster);
-      $card.append($content);
+     $poster.attr({
+       src: movie.Poster,
+       alt: `${movie.Poster} Poster`
+     });
 
-      const $action = $('<div>').addClass('card-action center');
-      const $plot = $('<a>');
+     $content.append($title, $poster);
+     $card.append($content);
 
-      $plot.addClass('waves-effect waves-light btn modal-trigger');
-      $plot.attr('href', `#${movie.id}`);
-      $plot.text('Plot Synopsis');
+     const $action = $('<div>').addClass('card-action center');
+     const $plot = $('<a>');
 
-      $action.append($plot);
-      $card.append($action);
+     $plot.addClass('waves-effect waves-light btn modal-trigger');
+     $plot.attr('href', `#${movie.imdbID}`);
+     $plot.text('Plot Synopsis');
 
-      const $modal = $('<div>').addClass('modal').attr('id', movie.id);
-      const $modalContent = $('<div>').addClass('modal-content');
-      const $modalHeader = $('<h4>').text(movie.title);
-      const $movieYear = $('<h6>').text(`Released in ${movie.year}`);
-      const $modalText = $('<p>').text(movie.plot);
+     $action.append($plot);
+     $card.append($action);
 
-      $modalContent.append($modalHeader, $movieYear, $modalText);
-      $modal.append($modalContent);
+     const $modal = $('<div>').addClass('modal').attr('id', movie.imdbID);
+     const $modalContent = $('<div>').addClass('modal-content');
+     const $modalHeader = $('<h4>').text(movie.Title);
+     const $movieYear = $('<h6>').text(`Released in ${movie.Year}`);
+     const $modalText = $('<p>').text(id.data.Plot);
 
-      $col.append($card, $modal);
+     $modalContent.append($modalHeader, $movieYear, $modalText);
+     $modal.append($modalContent);
 
-      $('#listings').append($col);
+     $col.append($card, $modal);
 
-      $('.modal-trigger').leanModal();
-    }
-  };
+     $('#listings').append($col);
+
+     $('.modal-trigger').leanModal();
+    })
+   }
+ };
 
   // ADD YOUR CODE HERE
+  let inputSearch = document.getElementById('search');
+  let searchBtn = document.querySelector('button');
+
+  function onSearchClick(e){
+    let resetInputField = '';
+    e.preventDefault();
+    if(inputSearch.value !== ''){
+      axios.get(`http://www.omdbapi.com/?s=${inputSearch.value}&apikey=1332854d`)
+        .then(function(response){
+          renderMovies(response.data.Search)
+        })
+      inputSearch.value = resetInputField;
+    }
+  }
+  searchBtn.addEventListener('click', onSearchClick);
+
+
 })();
